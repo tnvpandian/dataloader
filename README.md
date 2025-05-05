@@ -68,4 +68,21 @@ gcloud run deploy springboot-csv-firestore \
   --allow-unauthenticated
 
 
+## PubSub
+# Create GCS bucket
+gsutil mb -l us-central1 gs://your-bucket-name/
+
+# Enable notifications via Pub/Sub
+gcloud pubsub topics create csv-upload-topic
+
+# Create a notification
+gsutil notification create -t csv-upload-topic -f json gs://your-bucket-name/
+
+
+gcloud pubsub subscriptions create csv-upload-subscription \
+  --topic=csv-upload-topic \
+  --push-endpoint=https://your-cloud-run-url/process-csv \
+  --push-auth-service-account=your-service-account@your-project.iam.gserviceaccount.com
+
+
 
