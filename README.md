@@ -6,21 +6,29 @@ gcloud artifacts repositories create java-docker-repo \
 
  # ---------- Stage 1: Build the app ----------
 FROM gradle:8.4-jdk17 AS build
+
 WORKDIR /app
+
 COPY --chown=gradle:gradle . .
+
 RUN gradle build -x test
 
 # ---------- Stage 2: Run the app ----------
+
 FROM eclipse-temurin:17-jdk-jammy
+
 WORKDIR /app
+
 COPY --from=build /app/build/libs/*.jar app.jar
+
 EXPOSE 8080
+
 ENTRYPOINT ["java", "-jar", "app.jar"]
 
 
+####
 
 IMAGE_NAME=us-central1-docker.pkg.dev/YOUR_PROJECT_ID/java-docker-repo/springboot-csv-firestore
-
 
 docker build -t $IMAGE_NAME .
 
