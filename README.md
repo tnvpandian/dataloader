@@ -4,6 +4,29 @@ gcloud artifacts repositories create java-docker-repo \
   --description="Docker repo for Spring Boot app"
 
 
+# ---------- Stage 1: Build the app with Gradle and JDK 21 ----------
+FROM gradle:8.4-jdk21 AS build
+
+WORKDIR /app
+
+COPY --chown=gradle:gradle . .
+
+RUN gradle build -x test
+
+# ---------- Stage 2: Run the app with Java 21 ----------
+
+FROM eclipse-temurin:21-jdk-jammy
+
+WORKDIR /app
+
+COPY --from=build /app/build/libs/*.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
+
+
  # ---------- Stage 1: Build the app ----------
 FROM gradle:8.4-jdk17 AS build
 
